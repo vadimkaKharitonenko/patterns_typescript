@@ -162,3 +162,115 @@ function main() {
 }
 
 main();
+
+
+
+
+
+
+
+// another example
+
+class Notifier {
+  public send(message: string): void {
+    console.log('Email: ' + message);
+  }
+}
+
+class BaseDecorator extends Notifier {
+  wrappee: Notifier;
+
+  constructor(n: Notifier) {
+    super();
+    this.wrappee = n;
+  }
+
+  public send(message: string): void {
+    this.wrappee.send(message);
+  }
+}
+
+class SMSDecorator extends BaseDecorator {
+  public send(message: string): void {
+    super.send(message);
+    this.sendSMS(message);
+  }
+
+  private sendSMS(message: string): void {
+    console.log('SMS: ' + message);
+  }
+}
+
+class FacebookDecorator extends BaseDecorator {
+  public send(message: string): void {
+    super.send(message);
+    this.sendToFB(message);
+  }
+
+  private sendToFB(message: string): void {
+    console.log('Facebook: ' + message);
+  }
+}
+
+class SlackDecorator extends BaseDecorator {
+  public send(message: string): void {
+    super.send(message);
+    this.sendToSlack(message);
+  }
+
+  private sendToSlack(message: string): void {
+    console.log('Slack: ' + message);
+  }
+}
+
+class App {
+  notifier: Notifier;
+  fb: boolean;
+  sms: boolean;
+  slack: boolean;
+
+  public setNotifier(n: Notifier) {
+    this.notifier = n;
+  }
+
+  public send(message: string) {
+    let n = this.notifier;
+
+    if (this.fb) n = new FacebookDecorator(n);
+    if (this.sms) n = new SMSDecorator(n);
+    if (this.slack) n = new SlackDecorator(n);
+
+    n.send(message);
+  }
+
+  public setFB(b: boolean) {
+    this.fb = b;
+  }
+
+  public setSlack(b: boolean) {
+    this.slack = b;
+  }
+
+  public setSMS(b: boolean) {
+    this.sms = b;
+  }
+}
+
+function main2() {
+  const n = new Notifier();
+  const app = new App();
+  app.setNotifier(n);
+  app.send('Hello!');
+  console.log('--------------');
+  app.setFB(true);
+  app.send('Hello!');
+  console.log('--------------');
+  app.setSlack(true);
+  app.send('Hello!');
+  console.log('--------------');
+  app.setSMS(true);
+  app.send('Hello!');
+  console.log('--------------');
+}
+
+main2();

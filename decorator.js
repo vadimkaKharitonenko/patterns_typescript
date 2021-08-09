@@ -167,3 +167,110 @@ function main() {
     console.log(beverage4.getDescription() + ' $: ' + beverage4.cost());
 }
 main();
+// another example
+var Notifier = /** @class */ (function () {
+    function Notifier() {
+    }
+    Notifier.prototype.send = function (message) {
+        console.log('Email: ' + message);
+    };
+    return Notifier;
+}());
+var BaseDecorator = /** @class */ (function (_super) {
+    __extends(BaseDecorator, _super);
+    function BaseDecorator(n) {
+        var _this = _super.call(this) || this;
+        _this.wrappee = n;
+        return _this;
+    }
+    BaseDecorator.prototype.send = function (message) {
+        this.wrappee.send(message);
+    };
+    return BaseDecorator;
+}(Notifier));
+var SMSDecorator = /** @class */ (function (_super) {
+    __extends(SMSDecorator, _super);
+    function SMSDecorator() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SMSDecorator.prototype.send = function (message) {
+        _super.prototype.send.call(this, message);
+        this.sendSMS(message);
+    };
+    SMSDecorator.prototype.sendSMS = function (message) {
+        console.log('SMS: ' + message);
+    };
+    return SMSDecorator;
+}(BaseDecorator));
+var FacebookDecorator = /** @class */ (function (_super) {
+    __extends(FacebookDecorator, _super);
+    function FacebookDecorator() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    FacebookDecorator.prototype.send = function (message) {
+        _super.prototype.send.call(this, message);
+        this.sendToFB(message);
+    };
+    FacebookDecorator.prototype.sendToFB = function (message) {
+        console.log('Facebook: ' + message);
+    };
+    return FacebookDecorator;
+}(BaseDecorator));
+var SlackDecorator = /** @class */ (function (_super) {
+    __extends(SlackDecorator, _super);
+    function SlackDecorator() {
+        return _super !== null && _super.apply(this, arguments) || this;
+    }
+    SlackDecorator.prototype.send = function (message) {
+        _super.prototype.send.call(this, message);
+        this.sendToSlack(message);
+    };
+    SlackDecorator.prototype.sendToSlack = function (message) {
+        console.log('Slack: ' + message);
+    };
+    return SlackDecorator;
+}(BaseDecorator));
+var App = /** @class */ (function () {
+    function App() {
+    }
+    App.prototype.setNotifier = function (n) {
+        this.notifier = n;
+    };
+    App.prototype.send = function (message) {
+        var n = this.notifier;
+        if (this.fb)
+            n = new FacebookDecorator(n);
+        if (this.sms)
+            n = new SMSDecorator(n);
+        if (this.slack)
+            n = new SlackDecorator(n);
+        n.send(message);
+    };
+    App.prototype.setFB = function (b) {
+        this.fb = b;
+    };
+    App.prototype.setSlack = function (b) {
+        this.slack = b;
+    };
+    App.prototype.setSMS = function (b) {
+        this.sms = b;
+    };
+    return App;
+}());
+function main2() {
+    var n = new Notifier();
+    var app = new App();
+    app.setNotifier(n);
+    app.send('Hello!');
+    console.log('--------------');
+    app.setFB(true);
+    app.send('Hello!');
+    console.log('--------------');
+    app.setSlack(true);
+    app.send('Hello!');
+    console.log('--------------');
+    app.setSMS(true);
+    app.send('Hello!');
+    console.log('--------------');
+}
+main2();
